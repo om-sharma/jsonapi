@@ -4,11 +4,13 @@ package org.dialectic.jsonapi.error;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dialectic.jsonapi.JsonApiResponse;
+import org.dialectic.jsonapi.Meta;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class ErrorResponseTest {
@@ -38,7 +40,7 @@ public class ErrorResponseTest {
                 )
                 .title("some other title")
                 .build();
-        ErrorResponse<Error> errorResponse = JsonApiResponse.withErrors(error1, error2);
+        ErrorResponse<Error> errorResponse = JsonApiResponse.errorResponse(error1, error2);
 
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(errorResponse));
 
@@ -51,4 +53,18 @@ public class ErrorResponseTest {
         JSONAssert.assertEquals(expected, jsonNode.toString(), true);
     }
 
+    @Test
+    public void errorResponseWithMeta() throws JSONException, IOException {
+        Error error = Error.builder()
+                .title("some title")
+                .build();
+
+        ErrorResponse<Error> errorResponse = JsonApiResponse.errorResponse(error).withMeta(new Meta(Collections.singletonMap("a", "b")));
+        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(errorResponse));
+
+        String expected = "{'errors':[{'title':'some title'}], 'meta':{'a':'b'}}"
+                        .replaceAll("'", "\"");
+
+        JSONAssert.assertEquals(expected, jsonNode.toString(), true);
+    }
 }

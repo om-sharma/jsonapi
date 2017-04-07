@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class MultiDataResponseTest {
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -34,6 +35,15 @@ public class MultiDataResponseTest {
         MultiDataResponse<DataObject> multiDataResponse = new MultiDataResponse<>();
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
         JSONAssert.assertEquals("{'data':[]}".replaceAll("'", "\""), jsonNode.toString(), true);
+    }
+
+
+    @Test
+    public void multiDataResponseWithMeta() throws IOException, JSONException {
+        MultiDataResponse<TestDataObject> multiDataResponse = new MultiDataResponse<>(new TestDataObject(99, "123")).withMeta(new Meta(Collections.singletonMap("a", "b")));
+        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
+
+        JSONAssert.assertEquals("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'meta':{'a':'b'}}".replaceAll("'", "\""), jsonNode.toString(), true);
     }
 
 }
