@@ -8,20 +8,29 @@ import lombok.Getter;
 @SuppressWarnings("unchecked")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
-public abstract class AbstractJsonApiResponse<T extends DataObject> implements JsonApiResponse {
+public abstract class DataResponse<T extends DataObject> implements JsonApiResponse {
     @JsonProperty
     private Link links;
 
     @JsonUnwrapped
     private Meta meta;
 
-    public <M extends AbstractJsonApiResponse> M withLink(Link link) {
+    @JsonProperty
+    private Jsonapi jsonapi;
+
+    public <M extends DataResponse<T>> M withLink(Link link) {
         this.links = link;
         return (M) this;
     }
 
-    public <N extends AbstractJsonApiResponse> N withMeta(Meta meta) {
+    public <M extends DataResponse<T>> M withMeta(Meta meta) {
         this.meta = meta;
-        return (N) this;
+        return (M) this;
+    }
+
+    public <M extends DataResponse<T>> M jsonapi(Jsonapi jsonapi){
+        this.jsonapi = jsonapi;
+        return (M) this;
     }
 }
+

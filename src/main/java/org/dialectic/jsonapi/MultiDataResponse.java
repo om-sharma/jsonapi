@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings({"WeakerAccess", "unchecked"})
 @JsonSerialize
-public class MultiDataResponse<T extends DataObject> extends AbstractJsonApiResponse<T> {
+public class MultiDataResponse<T extends DataObject> extends DataResponse<T> {
     private List<Data<T>> datas;
 
     public MultiDataResponse(List<T> data) {

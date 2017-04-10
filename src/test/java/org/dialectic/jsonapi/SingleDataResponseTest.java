@@ -22,10 +22,12 @@ public class SingleDataResponseTest {
     }
 
     @Test
-    public void responseWithMeta() throws IOException, JSONException {
-        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123")).withMeta(new Meta(Collections.singletonMap("a", "b")));
+    public void responseWithMetaAndJsonapi() throws IOException, JSONException {
+        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"))
+                .withMeta(new Meta(Collections.singletonMap("a", "b")))
+                .jsonapi(Jsonapi.builder().version("1.0").meta(new Meta(Collections.singletonMap("a", "b"))).build());
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(singleDataResponse));
-        JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'meta':{'a':'b'}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'meta':{'a':'b'}, 'jsonapi': {'version':'1.0', 'meta':{'a':'b'}}}".replaceAll("'", "\""), jsonNode.toString(), true);
     }
 
     @Test

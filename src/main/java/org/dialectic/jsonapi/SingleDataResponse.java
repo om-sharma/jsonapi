@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @SuppressWarnings("WeakerAccess")
 @JsonSerialize
-public class SingleDataResponse<T extends DataObject> extends AbstractJsonApiResponse<T> {
+public class SingleDataResponse<T extends DataObject> extends DataResponse<T> {
     private Data<T> data;
 
     public SingleDataResponse(T data) {

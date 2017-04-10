@@ -8,6 +8,8 @@ import lombok.Getter;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Link{
+    String self;
+    String related;
     String first;
     String last;
     String prev;

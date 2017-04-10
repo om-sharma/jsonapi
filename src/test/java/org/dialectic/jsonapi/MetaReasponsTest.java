@@ -3,7 +3,6 @@ package org.dialectic.jsonapi;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -15,12 +14,11 @@ import java.util.Map;
 public class MetaReasponsTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Getter
     static class Sample {
         @JsonProperty
-        String copyright = "value";
+        private String copyright = "value";
         @JsonProperty
-        Map<String, String> aMap = new HashMap<String, String>() {
+        private Map<String, String> aMap = new HashMap<String, String>() {
             {
                 put("a", "b");
             }
