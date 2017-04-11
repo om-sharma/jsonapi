@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class Link{
+public class Links {
     String self;
     String related;
     String first;

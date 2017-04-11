@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public abstract class DataResponse<T extends DataObject> implements JsonApiResponse {
     @JsonProperty
-    private Link links;
+    private Links links;
 
     @JsonUnwrapped
     private Meta meta;
@@ -18,8 +18,8 @@ public abstract class DataResponse<T extends DataObject> implements JsonApiRespo
     @JsonProperty
     private Jsonapi jsonapi;
 
-    public <M extends DataResponse<T>> M withLink(Link link) {
-        this.links = link;
+    public <M extends DataResponse<T>> M withLink(Links links) {
+        this.links = links;
         return (M) this;
     }
 

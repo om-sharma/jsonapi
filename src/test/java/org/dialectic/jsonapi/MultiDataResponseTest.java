@@ -24,7 +24,7 @@ public class MultiDataResponseTest {
     @Test
     public void dataIsSerializedWithLinkWhenLinksAreAvailable() throws IOException, JSONException {
         MultiDataResponse<TestDataObject> multiDataResponse = new MultiDataResponse<>(new TestDataObject(99, "123"));
-        multiDataResponse.withLink(Link.builder().next("foo").build());
+        multiDataResponse.withLink(Links.builder().next("foo").build());
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
 
         JSONAssert.assertEquals("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'links':{'next':'foo'}}".replaceAll("'", "\""), jsonNode.toString(), true);

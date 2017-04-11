@@ -33,7 +33,7 @@ public class SingleDataResponseTest {
     @Test
     public void dataIsSerializedWithLinkWhenLinksAreAvailable() throws IOException, JSONException {
         SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"));
-        singleDataResponse.withLink(Link.builder().next("foo").build());
+        singleDataResponse.withLink(Links.builder().next("foo").build());
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(singleDataResponse));
 
         JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'links':{'next':'foo'}}".replaceAll("'", "\""), jsonNode.toString(), true);
