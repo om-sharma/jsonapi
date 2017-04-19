@@ -1,6 +1,8 @@
 package org.dialectic.jsonapi;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Arrays;
@@ -11,6 +13,12 @@ import java.util.stream.Collectors;
 @JsonSerialize
 public class MultiDataResponse<T extends DataObject> extends DataResponse<T> {
     private List<Data<T>> datas;
+
+    @JsonCreator
+    public MultiDataResponse(@JsonProperty("links") Links links, @JsonProperty("meta") Object meta, @JsonProperty("jsonapi") Jsonapi jsonapi, @JsonProperty("data") List<Data<T>> datas) {
+        super(links, meta, jsonapi);
+        this.datas = datas;
+    }
 
     public MultiDataResponse(List<T> data) {
         this.datas = data.stream().map(d -> Data.with(d.getJsonApiDataId(), d.getJsonApiDataType(), d)).collect(Collectors.toList());

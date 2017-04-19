@@ -2,7 +2,6 @@ package org.dialectic.jsonapi;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
 
 @SuppressWarnings("unchecked")
@@ -12,19 +11,28 @@ public abstract class DataResponse<T extends DataObject> implements JsonApiRespo
     @JsonProperty
     private Links links;
 
-    @JsonUnwrapped
-    private Meta meta;
+    @JsonProperty("meta")
+    private Object meta;
 
     @JsonProperty
     private Jsonapi jsonapi;
 
-    public <M extends DataResponse<T>> M withLink(Links links) {
+    public DataResponse() {
+    }
+
+    public DataResponse(Links links, Object meta, Jsonapi jsonapi) {
+        this.links = links;
+        this.meta = meta;
+        this.jsonapi = jsonapi;
+    }
+
+    public <M extends DataResponse<T>> M withLinks(Links links) {
         this.links = links;
         return (M) this;
     }
 
-    public <M extends DataResponse<T>> M withMeta(Meta meta) {
-        this.meta = meta;
+    public <M extends DataResponse<T>> M withMeta(Object metaObject) {
+        this.meta = metaObject;
         return (M) this;
     }
 

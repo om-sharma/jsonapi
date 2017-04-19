@@ -1,15 +1,16 @@
 package org.dialectic.jsonapi.error;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dialectic.jsonapi.JsonApiResponse;
-import org.dialectic.jsonapi.Meta;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.lang.*;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -23,7 +24,7 @@ public class ErrorResponseTest {
                 .httpStatusCode("400")
                 .detail("Some detail")
                 .id("Error_1")
-                .links(new org.dialectic.jsonapi.error.ErrorLink("about value"))
+                .links(new ErrorLink("about value"))
                 .source(new ErrorSource("pointer", "parameter"))
                 .title("some title")
                 .build();
@@ -32,7 +33,7 @@ public class ErrorResponseTest {
                 .httpStatusCode("200")
                 .detail("Some other detail")
                 .id("Error_2")
-                .links(new org.dialectic.jsonapi.error.ErrorLink("about value 1"))
+                .links(new ErrorLink("about value 1"))
                 .source(new ErrorSource("pointer_1", "parameter_1"))
                 .meta(new HashMap<String, String>() {{
                           put("key", "value");
@@ -59,7 +60,7 @@ public class ErrorResponseTest {
                 .title("some title")
                 .build();
 
-        ErrorResponse<Error> errorResponse = JsonApiResponse.errorResponse(error).withMeta(new Meta(Collections.singletonMap("a", "b")));
+        ErrorResponse<Error> errorResponse = JsonApiResponse.errorResponse(error).withMeta(Collections.singletonMap("a", "b"));
         JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(errorResponse));
 
         String expected = "{'errors':[{'title':'some title'}], 'meta':{'a':'b'}}"
@@ -67,4 +68,26 @@ public class ErrorResponseTest {
 
         JSONAssert.assertEquals(expected, jsonNode.toString(), true);
     }
+
+    @Test
+    public void serializeAndThenDeserializeAgain() throws IOException, JSONException {
+
+        Error error = Error.builder()
+                .title("some title")
+                .build();
+
+        ErrorResponse<Error> errorResponse = JsonApiResponse.errorResponse(error).withMeta(Collections.singletonMap("a", "b"));
+
+        JsonNode jsonNode = getJsonNode(errorResponse);
+
+        ErrorResponse<Error> deserializeMultiDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<ErrorResponse<Error>>(){});
+
+        JSONAssert.assertEquals(getJsonNode(deserializeMultiDataResponse).toString(), jsonNode.toString(), true);
+
+    }
+
+    private JsonNode getJsonNode(ErrorResponse multiDataResponse) throws IOException {
+        return objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
+    }
+
 }

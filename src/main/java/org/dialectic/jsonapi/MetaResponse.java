@@ -1,14 +1,16 @@
 package org.dialectic.jsonapi;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MetaResponse<T> implements JsonApiResponse {
-    @JsonUnwrapped
-    private Meta meta;
+    @JsonProperty
+    private Object meta;
 
-    public MetaResponse(Meta meta) {
+    @JsonCreator
+    public MetaResponse(@JsonProperty("meta") Object meta) {
         this.meta = meta;
     }
 }

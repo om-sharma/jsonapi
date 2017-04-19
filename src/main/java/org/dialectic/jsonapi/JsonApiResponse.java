@@ -20,7 +20,7 @@ public interface JsonApiResponse {
         return new ErrorResponse<>(errors);
     }
 
-    static MetaResponse metaResponse(Meta meta) {
+    static MetaResponse metaResponse(Object meta) {
         return new MetaResponse(meta);
     }
 }
