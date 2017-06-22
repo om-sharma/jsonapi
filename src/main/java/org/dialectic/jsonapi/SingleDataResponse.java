@@ -3,12 +3,16 @@ package org.dialectic.jsonapi;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.dialectic.jsonapi.links.ResponseLinks;
 
 import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 @JsonSerialize
+@EqualsAndHashCode(callSuper = true)
+@ToString
 public class SingleDataResponse<T extends Resource> extends DataResponse<T> {
     @JsonProperty
     private Data<T> data;

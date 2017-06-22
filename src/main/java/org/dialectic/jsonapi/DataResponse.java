@@ -7,11 +7,11 @@ import org.dialectic.jsonapi.links.PaginationLinks;
 import org.dialectic.jsonapi.links.ResourceLinks;
 import org.dialectic.jsonapi.links.ResponseLinks;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.dialectic.jsonapi.Meta.of;
 
 @SuppressWarnings("unchecked")
@@ -42,7 +42,13 @@ public abstract class DataResponse<T extends Resource> implements JsonApiRespons
     }
 
     public <M extends DataResponse<T>, N extends Resource> M withIncludedResources(N... includedResources) {
-        this.included = Arrays.stream(includedResources).map(this::serializeData).collect(Collectors.toList());
+        return withIncludedResources(asList(includedResources));
+    }
+
+    public <M extends DataResponse<T>, N extends Resource> M withIncludedResources(List<N> includedResources) {
+        this.included = includedResources.stream()
+                .map(this::serializeData)
+                .collect(toList());
         return (M) this;
     }
 

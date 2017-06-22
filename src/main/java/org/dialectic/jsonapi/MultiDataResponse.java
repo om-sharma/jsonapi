@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.dialectic.jsonapi.links.ResponseLinks;
 
 import java.util.Collections;
@@ -14,6 +16,8 @@ import static java.util.Arrays.asList;
 
 @SuppressWarnings({"WeakerAccess", "unchecked", "unused"})
 @JsonSerialize
+@EqualsAndHashCode(callSuper = true)
+@ToString
 public class MultiDataResponse<T extends Resource> extends DataResponse<T> {
     @JsonProperty("data")
     @JsonInclude(JsonInclude.Include.ALWAYS)

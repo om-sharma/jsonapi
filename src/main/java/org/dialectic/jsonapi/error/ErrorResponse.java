@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.dialectic.jsonapi.JsonApiResponse;
 import org.dialectic.jsonapi.Meta;
 import lombok.Getter;
@@ -15,6 +17,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"errors", "meta"})
 @Getter
+@EqualsAndHashCode
+@ToString
 public class ErrorResponse<T extends Error> implements JsonApiResponse {
     @JsonProperty
     private List<T> errors;
