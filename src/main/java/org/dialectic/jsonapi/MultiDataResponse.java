@@ -4,32 +4,42 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.dialectic.jsonapi.links.ResponseLinks;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"WeakerAccess", "unchecked"})
+import static java.util.Arrays.asList;
+
+@SuppressWarnings({"WeakerAccess", "unchecked", "unused"})
 @JsonSerialize
-public class MultiDataResponse<T extends DataObject> extends DataResponse<T> {
+public class MultiDataResponse<T extends Resource> extends DataResponse<T> {
+    @JsonProperty("data")
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private List<Data<T>> datas;
 
     @JsonCreator
-    public MultiDataResponse(@JsonProperty("links") Links links, @JsonProperty("meta") Object meta, @JsonProperty("jsonapi") Jsonapi jsonapi, @JsonProperty("data") List<Data<T>> datas) {
-        super(links, meta, jsonapi);
+    public MultiDataResponse(
+            @JsonProperty("links") ResponseLinks links,
+            @JsonProperty("meta") Meta meta,
+            @JsonProperty("jsonapi") Jsonapi jsonapi,
+            @JsonProperty("data") List<Data<T>> datas,
+            @JsonProperty("included") List<Data> included
+    ) {
+        super(links, meta, jsonapi, included);
         this.datas = datas;
     }
 
     public MultiDataResponse(List<T> data) {
-        this.datas = data.stream().map(d -> Data.with(d.getJsonApiDataId(), d.getJsonApiDataType(), d)).collect(Collectors.toList());
+        this.datas = data.stream().map(this::serializeIntoDataBlock).collect(Collectors.toList());
     }
 
     public MultiDataResponse(T... data) {
-        this(Arrays.asList(data));
+        this(asList(data));
     }
 
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    public List<Data<T>> getData() {
-        return datas;
+    public List<Data<T>> data() {
+        return Collections.unmodifiableList(datas);
     }
 }

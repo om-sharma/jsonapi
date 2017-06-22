@@ -3,25 +3,27 @@ package org.dialectic.jsonapi.error;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.dialectic.jsonapi.JsonApiResponse;
+import org.dialectic.jsonapi.Meta;
 import lombok.Getter;
 
-import java.lang.*;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings({"WeakerAccess", "unchecked"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder({"errors", "meta"})
 @Getter
 public class ErrorResponse<T extends Error> implements JsonApiResponse {
     @JsonProperty
     private List<T> errors;
 
     @JsonProperty
-    private Object meta;
+    private Meta meta;
 
     @JsonCreator
-    public ErrorResponse(@JsonProperty("errors") List<T> errors, @JsonProperty("meta") Object meta) {
+    public ErrorResponse(@JsonProperty("errors") List<T> errors, @JsonProperty("meta") Meta meta) {
         this.errors = errors;
         this.meta = meta;
     }
@@ -34,8 +36,16 @@ public class ErrorResponse<T extends Error> implements JsonApiResponse {
         this(Arrays.asList(errors));
     }
 
-    public ErrorResponse<T> withMeta(Object meta) {
-        this.meta = meta;
+    public ErrorResponse<T> withMeta(Meta metaObject) {
+        return withMeta(metaObject, false);
+    }
+
+    public ErrorResponse<T> withMeta(Meta metaObject, boolean override) {
+        if (meta == null || override) {
+            meta = metaObject;
+        } else {
+            meta.merge(metaObject);
+        }
         return this;
     }
 }

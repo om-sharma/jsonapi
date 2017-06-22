@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -13,9 +12,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MetaResponseTest {
-    private ObjectMapper objectMapper = new ObjectMapper();
+import static org.dialectic.jsonapi.Meta.of;
+import static org.dialectic.jsonapi.testsupport.TestSupport.*;
 
+public class MetaResponseTest {
     static class Sample {
         @JsonProperty
         private String copyright = "value";
@@ -38,28 +38,23 @@ public class MetaResponseTest {
 
     @Test
     public void metaResponse() throws JSONException, IOException {
-        MetaResponse metaResponse = JsonApiResponse.metaResponse(new Sample());
-        JsonNode jsonNode = getJsonNode(metaResponse);
+        MetaResponse metaResponse = JsonApiResponse.metaResponse(of(new Sample()));
+        JsonNode jsonNode = toJsonNode(metaResponse);
 
-        JSONAssert.assertEquals("{'meta':{'copyright':'value', 'aMap': {'a':'b'}}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        JSONAssert.assertEquals(jString("{'meta':{'copyright':'value', 'aMap': {'a':'b'}}}"), jsonNode.toString(), true);
 
     }
 
     @Test
     public void serializeAndThenDeserializeAgain() throws IOException, JSONException {
 
-        MetaResponse metaResponse = JsonApiResponse.metaResponse(new Sample());
-        JsonNode jsonNode = getJsonNode(metaResponse);
+        MetaResponse metaResponse = JsonApiResponse.metaResponse(of(new Sample()));
+        JsonNode jsonNode = toJsonNode(metaResponse);
 
         MetaResponse<Sample> deserializeMultiDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<MetaResponse<Sample>>() {
         });
 
-        JSONAssert.assertEquals(getJsonNode(deserializeMultiDataResponse).toString(), jsonNode.toString(), true);
+        JSONAssert.assertEquals(toJsonNode(deserializeMultiDataResponse).toString(), jsonNode.toString(), true);
 
     }
-
-    private JsonNode getJsonNode(MetaResponse metaResponse) throws IOException {
-        return objectMapper.readTree(objectMapper.writeValueAsBytes(metaResponse));
-    }
-
 }

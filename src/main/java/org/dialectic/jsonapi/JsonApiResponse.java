@@ -1,18 +1,18 @@
 package org.dialectic.jsonapi;
 
-import org.dialectic.jsonapi.error.ErrorResponse;
 import org.dialectic.jsonapi.error.Error;
+import org.dialectic.jsonapi.error.ErrorResponse;
 
 import java.util.List;
 
 @SuppressWarnings("unchecked")
 public interface JsonApiResponse {
-    static <T extends DataObject> SingleDataResponse<T> singleDataResponse(T data) {
+    static <T extends Resource> SingleDataResponse<T> singleDataResponse(T data) {
         //todo: add null check
         return new SingleDataResponse<>(data);
     }
 
-    static <T extends DataObject> MultiDataResponse<T> multiDataResponse(List<T> data) {
+    static <T extends Resource> MultiDataResponse<T> multiDataResponse(List<T> data) {
         return new MultiDataResponse<>(data);
     }
 
@@ -20,7 +20,11 @@ public interface JsonApiResponse {
         return new ErrorResponse<>(errors);
     }
 
-    static MetaResponse metaResponse(Object meta) {
+    static <T extends Error> ErrorResponse<T> errorResponse(List<T> errors) {
+        return new ErrorResponse(errors);
+    }
+
+    static MetaResponse metaResponse(Meta meta) {
         return new MetaResponse(meta);
     }
 }

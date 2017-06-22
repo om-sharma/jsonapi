@@ -2,6 +2,7 @@ package org.dialectic.jsonapi.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dialectic.jsonapi.Meta;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.Getter;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = "id")
+@EqualsAndHashCode
 public class Error {
     @JsonProperty("id")
     String id;
@@ -34,8 +35,7 @@ public class Error {
     @JsonProperty("source")
     ErrorSource source;
 
-    //todo: this must be an object which can be serialized in json (try enforcing it)
     @JsonProperty("meta")
-    private Object meta;
+    private Meta meta;
 }
 

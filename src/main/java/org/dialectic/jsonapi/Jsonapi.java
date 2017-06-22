@@ -8,7 +8,7 @@ import lombok.Builder;
 public class Jsonapi {
 
     @JsonCreator
-    public Jsonapi(@JsonProperty("version") String version, @JsonProperty("meta") Object meta) {
+    public Jsonapi(@JsonProperty("version") String version, @JsonProperty("meta") Meta meta) {
         this.version = version;
         this.meta = meta;
     }
@@ -17,5 +17,5 @@ public class Jsonapi {
     private String version;
 
     @JsonProperty
-    private Object meta;
+    private Meta meta;
 }

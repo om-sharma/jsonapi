@@ -3,71 +3,81 @@ package org.dialectic.jsonapi;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.dialectic.jsonapi.Meta.ofEntry;
+import static org.dialectic.jsonapi.links.PaginationLinks.links;
+import static org.dialectic.jsonapi.testsupport.TestSupport.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 public class MultiDataResponseTest {
-    private ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     public void dataIsSerializedWithoutLinkWhenLinksAreEmpty() throws IOException, JSONException {
-        MultiDataResponse<TestDataObject> multiDataResponse = new MultiDataResponse<>(new TestDataObject(99, "123"));
-        JsonNode jsonNode = getJsonNode(multiDataResponse);
+        MultiDataResponse<TestResource> multiDataResponse = new MultiDataResponse<>(new TestResource(99, "123"));
+        JsonNode jsonNode = toJsonNode(multiDataResponse);
 
-        JSONAssert.assertEquals("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}]}".replaceAll("'", "\""), jsonNode.toString(), true);
+        assertEquals(jString("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}]}"), jsonNode.toString(), true);
     }
 
     @Test
     public void dataIsSerializedWithLinkWhenLinksAreAvailable() throws IOException, JSONException {
-        MultiDataResponse<TestDataObject> multiDataResponse = new MultiDataResponse<>(new TestDataObject(99, "123"));
-        multiDataResponse.withLinks(Links.builder().next("foo").build());
-        JsonNode jsonNode = getJsonNode(multiDataResponse);
+        MultiDataResponse<TestResource> multiDataResponse = new MultiDataResponse<>(new TestResource(99, "123"));
+        multiDataResponse.withLinks(links(null, null, "foo", null));
 
-        JSONAssert.assertEquals("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'links':{'next':'foo'}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        assertEquals(jString("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'links':{'next':'foo'}}"), toJsonString(multiDataResponse), true);
     }
 
     @Test
     public void renderEmptyDataWhenNoDataIsAvailable() throws IOException, JSONException {
-        MultiDataResponse<DataObject> multiDataResponse = new MultiDataResponse<>();
-        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
-        JSONAssert.assertEquals("{'data':[]}".replaceAll("'", "\""), jsonNode.toString(), true);
+        MultiDataResponse<Resource> multiDataResponse = new MultiDataResponse<>();
+        assertEquals(jString("{'data':[]}"), toJsonString(multiDataResponse), true);
     }
 
 
     @Test
     public void multiDataResponseWithMeta() throws IOException, JSONException {
-        MultiDataResponse<TestDataObject> multiDataResponse = new MultiDataResponse<>(new TestDataObject(99, "123")).withMeta(Collections.singletonMap("a", "b"));
-        JsonNode jsonNode = getJsonNode(multiDataResponse);
+        MultiDataResponse<TestResource> multiDataResponse = new MultiDataResponse<>(new TestResource(99, "123"))
+                .withMeta(ofEntry("a", "b"))
+                .withMeta(ofEntry("c", "d"));
 
-        JSONAssert.assertEquals("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'meta':{'a':'b'}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        assertEquals(jString("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'meta':{'a':'b', 'c':'d'}}"), toJsonString(multiDataResponse), true);
+
+        multiDataResponse.withMeta(ofEntry("k", "v"), true);
+
+        assertEquals(jString("{'data':[{'id':'99', 'type':'transaction','attributes':{'receiptNumber':'123'}}], 'meta':{'k':'v'}}"), toJsonString(multiDataResponse), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void serializeAndThenDeserializeAgain() throws IOException, JSONException {
 
-        MultiDataResponse<TestDataObject> multiDataResponse =
-                new MultiDataResponse<>(new TestDataObject(99, "123"))
-                        .withLinks(Links.builder().first("foo").build())
-                        .withMeta(new HashMap<String, String>() {{
-                                      put("a", "b");
-                                  }}
-                        );
+        MultiDataResponse<TestResource> multiDataResponse = new MultiDataResponse<>(
+                new TestResource(99, "123"),
+                new TestResource(98, null)
+        ).withLinks(
+                links("foo", null, null, null)
+        ).withMeta(
+                ofEntry("a", "b")
+        );
 
-        JsonNode jsonNode = getJsonNode(multiDataResponse);
+        JsonNode jsonNode = toJsonNode(multiDataResponse);
 
-        MultiDataResponse<TestDataObject> deserializeMultiDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<MultiDataResponse<TestDataObject>>(){});
+        Map<String, List<Map<String, ?>>> jsonNode1 = toMap(multiDataResponse);
 
-        JSONAssert.assertEquals(getJsonNode(deserializeMultiDataResponse).toString(), jsonNode.toString(), true);
+        assertThat(jsonNode1.get("data").get(0).containsKey("attributes"), is(true));
+        assertThat(jsonNode1.get("data").get(1).containsKey("attributes"), is(false));
 
-    }
+        MultiDataResponse<TestResource> deserializeMultiDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<MultiDataResponse<TestResource>>() {
+        });
 
-    private JsonNode getJsonNode(MultiDataResponse<TestDataObject> multiDataResponse) throws IOException {
-        return objectMapper.readTree(objectMapper.writeValueAsBytes(multiDataResponse));
+        assertJsonEquals(toJsonNode(deserializeMultiDataResponse).toString(), jsonNode.toString());
+
     }
 }

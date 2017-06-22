@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MetaResponse<T> implements JsonApiResponse {
     @JsonProperty
-    private Object meta;
+    private Meta meta;
 
     @JsonCreator
-    public MetaResponse(@JsonProperty("meta") Object meta) {
+    public MetaResponse(@JsonProperty("meta") Meta meta) {
         this.meta = meta;
     }
 }

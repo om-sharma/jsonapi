@@ -3,61 +3,59 @@ package org.dialectic.jsonapi;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dialectic.jsonapi.links.ResourceLinks;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
-import java.util.Collections;
+
+import static org.dialectic.jsonapi.Meta.ofEntry;
+import static org.dialectic.jsonapi.links.PaginationLinks.links;
+import static org.dialectic.jsonapi.testsupport.TestSupport.*;
 
 public class SingleDataResponseTest {
-    private ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     public void dataIsSerializedWithoutLinkWhenLinksAreEmpty() throws IOException, JSONException {
-        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"));
-        JsonNode jsonNode = getJsonNode(singleDataResponse);
+        SingleDataResponse<TestResource> singleDataResponse = new SingleDataResponse<>(new TestResource(88, "123"));
+        JsonNode jsonNode = toJsonNode(singleDataResponse);
 
-        JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        JSONAssert.assertEquals(jString("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}}"), jsonNode.toString(), true);
     }
 
     @Test
     public void responseWithMetaAndJsonapi() throws IOException, JSONException {
-        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"))
-                .withMeta(Collections.singletonMap("a", "b"))
-                .jsonapi(Jsonapi.builder().version("1.0").meta(Collections.singletonMap("a", "b")).build());
-        JsonNode jsonNode = getJsonNode(singleDataResponse);
-        JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'meta':{'a':'b'}, 'jsonapi': {'version':'1.0', 'meta':{'a':'b'}}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        SingleDataResponse<TestResource> singleDataResponse = new SingleDataResponse<>(new TestResource(88, "123"))
+                .withMeta(ofEntry("a", "b"))
+                .jsonapi(Jsonapi.builder().version("1.0").meta(ofEntry("a", "b")).build());
+        JsonNode jsonNode = toJsonNode(singleDataResponse);
+        JSONAssert.assertEquals(jString("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'meta':{'a':'b'}, 'jsonapi': {'version':'1.0', 'meta':{'a':'b'}}}"), jsonNode.toString(), true);
     }
 
     @Test
     public void dataIsSerializedWithLinkWhenLinksAreAvailable() throws IOException, JSONException {
-        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"));
-        singleDataResponse.withLinks(Links.builder().next("foo").build());
-        JsonNode jsonNode = getJsonNode(singleDataResponse);
+        SingleDataResponse<TestResource> singleDataResponse = new SingleDataResponse<>(new TestResource(88, "123"));
+        singleDataResponse.withLinks(links(null, null, "foo", null));
 
-        JSONAssert.assertEquals("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'links':{'next':'foo'}}".replaceAll("'", "\""), jsonNode.toString(), true);
+        assertJsonEquals(jString("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'links':{'next':'foo'}}"), toJsonString(singleDataResponse));
+
+        singleDataResponse.withLinks(ResourceLinks.links("selfLink", "relatedLink"));
+
+        assertJsonEquals(jString("{'data':{'id':'88', 'type':'transaction','attributes':{'receiptNumber':'123'}}, 'links':{'next':'foo', 'self':'selfLink', 'related':'relatedLink'}}"), toJsonString(singleDataResponse));
     }
 
     @Test
     public void serializeAndThenDeserializeAgain() throws IOException, JSONException {
 
-        SingleDataResponse<TestDataObject> singleDataResponse = new SingleDataResponse<>(new TestDataObject(88, "123"))
-                .withMeta(Collections.singletonMap("a", "b"))
-                .jsonapi(Jsonapi.builder().version("1.0").meta(Collections.singletonMap("a", "b")).build());
+        SingleDataResponse<TestResource> singleDataResponse = new SingleDataResponse<>(new TestResource(88, "123"))
+                .withMeta(ofEntry("a", "b"))
+                .jsonapi(Jsonapi.builder().version("1.0").meta(ofEntry("a", "b")).build());
 
-        JsonNode jsonNode = getJsonNode(singleDataResponse);
+        JsonNode jsonNode = toJsonNode(singleDataResponse);
 
-        SingleDataResponse<TestDataObject> deserializeDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<SingleDataResponse<TestDataObject>>(){});
+        SingleDataResponse<TestResource> deserializeDataResponse = objectMapper.readValue(jsonNode.toString(), new TypeReference<SingleDataResponse<TestResource>>(){});
 
-        JSONAssert.assertEquals(getJsonNode(deserializeDataResponse).toString(), jsonNode.toString(), true);
+        JSONAssert.assertEquals(toJsonNode(deserializeDataResponse).toString(), jsonNode.toString(), true);
 
     }
-
-    private JsonNode getJsonNode(SingleDataResponse<TestDataObject> singleDataResponse) throws IOException {
-        return objectMapper.readTree(objectMapper.writeValueAsBytes(singleDataResponse));
-    }
-
-
 }
